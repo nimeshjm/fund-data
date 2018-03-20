@@ -9,7 +9,6 @@ import (
 	"time"
 	"os"
 	"bufio"
-	"strings"
 	"html/template"
 )
 
@@ -110,23 +109,38 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	file, err := os.Open("ids.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
 
+	ids:= []string {"F00000O4Y5",
+		"F00000PLW7",
+		"F00000PLW9",
+		"F00000P781",
+		"F00000P7MI",
+		"F0GBR0506U",
+		"F000002NAB",
+		"F0GBR04RMW",
+		"F0GBR04RMU",
+		"F00000OPX3",
+		"F00000PVLK",
+		"F00000OWM6",
+		"F00000P0QE",
+		"F00000MZDQ",
+		"F00000MWJQ",
+		"F00000J3S6",
+		"F0GBR06I57",
+		"F00000PLVU",
+		"F00000PW2X",
+		"F00000OWFG",
+		"F00000OYEQ",
+		"F00000OPVF",
+		"F00000OPUT",
+		"F00000OXIA"}
 	var prices []float64
-	for scanner.Scan() {
-		row := scanner.Text()
-		//isin := strings.Split(row, ",")[0]
-		id := strings.Split(row, ",")[1]
 
-		price, _, _ := GetNavPrice(id)
+
+
+	for i := 0; i < len(ids); i++ {
+		price, _, _ := GetNavPrice(ids[i])
 
 		prices = append(prices, price)
 
@@ -135,7 +149,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl := template.New("page")
-	tmpl, err = tmpl.Parse(page)
+	tmpl, _ = tmpl.Parse(page)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	tmpl.Execute(w, prices)
