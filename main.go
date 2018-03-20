@@ -9,6 +9,7 @@ import (
 	"time"
 	"os"
 	"bufio"
+	"strings"
 )
 
 type fund struct {
@@ -100,5 +101,26 @@ func GetNavPrice(id string) (float64, string, string) {
 }
 
 func main() {
-	// getIds()
+
+	// read ids from file
+	file, err := os.Open("ids.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		row := scanner.Text()
+		//isin := strings.Split(row, ",")[0]
+		id := strings.Split(row, ",")[1]
+
+		price, _, _ := GetNavPrice(id)
+
+		//fmt.Println(isin, price, currency, date, "\r\n")
+		fmt.Println(price)
+	}
 }
