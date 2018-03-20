@@ -101,6 +101,11 @@ func GetNavPrice(id string) (float64, string, string) {
 }
 
 func main() {
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
 
 	// read ids from file
 	file, err := os.Open("ids.txt")
@@ -121,6 +126,6 @@ func main() {
 		price, _, _ := GetNavPrice(id)
 
 		//fmt.Println(isin, price, currency, date, "\r\n")
-		fmt.Println(price)
+		fmt.Fprintf(w, "%f", price)
 	}
 }
