@@ -10,7 +10,11 @@ import (
 	"os"
 	"bufio"
 	"strings"
+	"html/template"
 )
+
+var page = `{{range $val := .}}{{$val}}
+{{end}}`
 
 type fund struct {
 	Id string
@@ -101,13 +105,11 @@ func GetNavPrice(id string) (float64, string, string) {
 }
 
 func main() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", handler,)
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-
-	// read ids from file
 	file, err := os.Open("ids.txt")
 	if err != nil {
 		fmt.Println(err)
@@ -118,6 +120,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
+	var prices []float64
 	for scanner.Scan() {
 		row := scanner.Text()
 		//isin := strings.Split(row, ",")[0]
@@ -125,7 +128,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 		price, _, _ := GetNavPrice(id)
 
+		prices = append(prices, price)
+
 		//fmt.Println(isin, price, currency, date, "\r\n")
-		fmt.Fprintf(w, "%f", price)
+		//fmt.Fprintf(w, "%f", price)
 	}
+
+	tmpl := template.New("page")
+	tmpl, err = tmpl.Parse(page)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	tmpl.Execute(w, prices)
 }
