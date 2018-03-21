@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestGetIdByISIN(t *testing.T) {
@@ -19,5 +19,4 @@ func TestGetNavPrice(t *testing.T) {
 	}
 
 	fmt.Println(price, currency, date)
-	}
-
+}

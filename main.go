@@ -1,15 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/patrickmn/go-cache"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 	"os"
-	"bufio"
-	"html/template"
+	"time"
 )
 
 var page = `{{range $val := .}}{{$val}}
@@ -103,18 +104,20 @@ func GetNavPrice(id string) (float64, string, string) {
 	return perf[0].LastPrice.Value, perf[0].LastPrice.Currency.ID, perf[0].LastPrice.Date
 }
 
+var c = cache.New(10*time.Minute, 10*time.Minute)
+
 func main() {
-	http.HandleFunc("/", handler,)
+	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
 }
 
-func init(){
+func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
-	ids:= []string {"F00000O4Y5",
+	ids := []string{"F00000O4Y5",
 		"F00000PLW7",
 		"F00000PLW9",
 		"F00000P781",
@@ -140,14 +143,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		"F00000OXIA"}
 	var prices []float64
 
-	for i := 0; i < len(ids); i++ {
-		price, _, _ := GetNavPrice(ids[i])
+	item, found := c.Get("prices")
+	if found {
+		prices = item.([]float64)
+	} else {
+		for i := 0; i < len(ids); i++ {
+			price, _, _ := GetNavPrice(ids[i])
 
-		prices = append(prices, price)
+			prices = append(prices, price)
 
-		//fmt.Println(isin, price, currency, date, "\r\n")
-		//fmt.Fprintf(w, "%f", price)
+			//fmt.Println(isin, price, currency, date, "\r\n")
+			//fmt.Fprintf(w, "%f", price)
+		}
+
+		c.Set("prices", prices, cache.DefaultExpiration)
 	}
+
+	log.Println(prices)
 
 	tmpl := template.New("page")
 	tmpl, _ = tmpl.Parse(page)
