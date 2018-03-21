@@ -23,7 +23,7 @@ func GetIdByISIN(isin string) string {
 	url := fmt.Sprintf("https://lt.morningstar.com/api/rest.svc/9vehuxllxs/security_details/%s?viewId=investmentTypeLookup&idtype=isin&languageId=en-GB&currencyId=GBP&responseViewFormat=json", isin)
 
 	httpClient := http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 60,
 	}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -76,7 +76,7 @@ func GetNavPrice(id string) (float64, string, string) {
 	url := fmt.Sprintf("http://tools.morningstar.co.uk/api/rest.svc/9vehuxllxs/security_details/%s?viewId=ETFsnapshot&idtype=msid&responseViewFormat=json", id)
 
 	httpClient := http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 30,
 	}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -108,8 +108,11 @@ func main() {
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func init(){
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
 
+func handler(w http.ResponseWriter, r *http.Request) {
 
 	ids:= []string {"F00000O4Y5",
 		"F00000PLW7",
@@ -136,8 +139,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		"F00000OPUT",
 		"F00000OXIA"}
 	var prices []float64
-
-
 
 	for i := 0; i < len(ids); i++ {
 		price, _, _ := GetNavPrice(ids[i])
