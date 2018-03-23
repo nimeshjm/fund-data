@@ -76,32 +76,43 @@ func getIds() {
 func GetNavPrice(id string) (float64, string, string) {
 	url := fmt.Sprintf("http://tools.morningstar.co.uk/api/rest.svc/9vehuxllxs/security_details/%s?viewId=ETFsnapshot&idtype=msid&responseViewFormat=json", id)
 
-	httpClient := http.Client{
-		Timeout: time.Second * 30,
-	}
+	item, found := c.Get(url)
+	if found {
+		return item.(EtfSnapshot).LastPrice.Value, item.(EtfSnapshot).LastPrice.Currency.ID, item.(EtfSnapshot).LastPrice.Date
+	} else {
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+		httpClient := http.Client{
+			Timeout: time.Second * 30,
+		}
 
-	res, getErr := httpClient.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
+		res, getErr := httpClient.Do(req)
+		if getErr != nil {
+			log.Fatal(getErr)
+			return 0, "", ""
+		}
 
-	perf := make([]EtfSnapshot, 0)
-	jsonErr := json.Unmarshal(body, &perf)
-	if jsonErr != nil {
-		log.Fatal(jsonErr)
-	}
+		body, readErr := ioutil.ReadAll(res.Body)
+		if readErr != nil {
+			log.Fatal(readErr)
+			return 0, "", ""
+		}
 
-	return perf[0].LastPrice.Value, perf[0].LastPrice.Currency.ID, perf[0].LastPrice.Date
+		perf := make([]EtfSnapshot, 0)
+		jsonErr := json.Unmarshal(body, &perf)
+		if jsonErr != nil {
+			log.Fatal(jsonErr)
+			return 0, "", ""
+		}
+
+		c.Set(url, perf[0], cache.DefaultExpiration)
+		return perf[0].LastPrice.Value, perf[0].LastPrice.Currency.ID, perf[0].LastPrice.Date
+
+	}
 }
 
 var c = cache.New(10*time.Minute, 10*time.Minute)
@@ -154,6 +165,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		for i := 0; i < len(ids); i++ {
 			price, _, date := GetNavPrice(ids[i])
+
+			if (price == 0) {
+				continue;
+			}
 
 			fmt.Print(date)
 			fmt.Println(price)
