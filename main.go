@@ -24,7 +24,7 @@ func GetIdByISIN(isin string) string {
 	url := fmt.Sprintf("https://lt.morningstar.com/api/rest.svc/9vehuxllxs/security_details/%s?viewId=investmentTypeLookup&idtype=isin&languageId=en-GB&currencyId=GBP&responseViewFormat=json", isin)
 
 	httpClient := http.Client{
-		Timeout: time.Second * 60,
+		Timeout: time.Second * 600,
 	}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
