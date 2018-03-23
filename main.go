@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-var page = `{{range $val := .}}{{$val}}
+var page = `{{range $y, $x := .}}{{$x.Price}} {{$x.Date}}
 {{end}}`
 
 type fund struct {
@@ -115,6 +115,11 @@ func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
+type results struct {
+	Price float64
+	Date  string
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 
 	ids := []string{"F00000O4Y5",
@@ -141,29 +146,29 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		"F00000OPVF",
 		"F00000OPUT",
 		"F00000OXIA"}
-	var prices []float64
+	var viewmodel []results
 
-	item, found := c.Get("prices")
+	item, found := c.Get("viewmodel")
 	if found {
-		prices = item.([]float64)
+		viewmodel = item.([]results)
 	} else {
 		for i := 0; i < len(ids); i++ {
-			price, _, _ := GetNavPrice(ids[i])
+			price, _, date := GetNavPrice(ids[i])
 
-			prices = append(prices, price)
+			fmt.Print(date)
+			fmt.Println(price)
 
-			//fmt.Println(isin, price, currency, date, "\r\n")
-			//fmt.Fprintf(w, "%f", price)
+			viewmodel = append(viewmodel, results{price, date})
 		}
 
-		c.Set("prices", prices, cache.DefaultExpiration)
+		c.Set("viewmodel", viewmodel, cache.DefaultExpiration)
 	}
 
-	log.Println(prices)
+	fmt.Println(viewmodel)
 
 	tmpl := template.New("page")
 	tmpl, _ = tmpl.Parse(page)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	tmpl.Execute(w, prices)
+	tmpl.Execute(w, viewmodel)
 }
