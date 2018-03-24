@@ -11,9 +11,13 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"github.com/gorilla/mux"
 )
 
-var page = `{{range $y, $x := .}}{{$x.Price}} {{$x.Date}}
+var pricesTemplate = `{{range $y, $x := .}}{{$x.Price}}
+{{end}}`
+
+var datesTemplate = `{{range $y, $x := .}}{{$x.Date}}
 {{end}}`
 
 type fund struct {
@@ -118,8 +122,10 @@ func GetNavPrice(id string) (float64, string, string) {
 var c = cache.New(10*time.Minute, 10*time.Minute)
 
 func main() {
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe("0.0.0.0:8000", nil))
+	router := mux.NewRouter()
+	router.HandleFunc("/{id}/prices", handlerPrices).Methods("GET")
+	router.HandleFunc("/{id}/dates", handlerDates).Methods("GET")
+	log.Fatal(http.ListenAndServe("0.0.0.0:8000", router))
 }
 
 func init() {
@@ -131,43 +137,43 @@ type results struct {
 	Date  string
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func handlerPrices(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	accountId := params["id"]
+	ids := getAccountIds(accountId)
+	viewmodel := buildViewModel(ids)
 
-	ids := []string{"F00000O4Y5",
-		"F00000PLW7",
-		"F00000PLW9",
-		"F00000P781",
-		"F00000P7MI",
-		"F0GBR0506U",
-		"F000002NAB",
-		"F0GBR04RMW",
-		"F0GBR04RMU",
-		"F00000OPX3",
-		"F00000PVLK",
-		"F00000OWM6",
-		"F00000P0QE",
-		"F00000MZDQ",
-		"F00000MWJQ",
-		"F00000J3S6",
-		"F0GBR06I57",
-		"F00000PLVU",
-		"F00000PW2X",
-		"F00000OWFG",
-		"F00000OYEQ",
-		"F00000OPVF",
-		"F00000OPUT",
-		"F00000OXIA"}
+	tmpl := template.New("pricesTemplate")
+	tmpl, _ = tmpl.Parse(pricesTemplate)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	tmpl.Execute(w, viewmodel)
+}
+
+func handlerDates(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	accountId := params["id"]
+	ids := getAccountIds(accountId)
+	viewmodel := buildViewModel(ids)
+
+	tmpl := template.New("datesTemplate")
+	tmpl, _ = tmpl.Parse(datesTemplate)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	tmpl.Execute(w, viewmodel)
+}
+
+func buildViewModel(ids []string) []results {
 	var viewmodel []results
-
 	item, found := c.Get("viewmodel")
 	if found {
-		viewmodel = item.([]results)
+		return item.([]results)
 	} else {
 		for i := 0; i < len(ids); i++ {
 			price, _, date := GetNavPrice(ids[i])
 
-			if (price == 0) {
-				continue;
+			if price == 0 {
+				continue
 			}
 
 			fmt.Print(date)
@@ -180,10 +186,60 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(viewmodel)
+	return viewmodel
+}
 
-	tmpl := template.New("page")
-	tmpl, _ = tmpl.Parse(page)
-
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	tmpl.Execute(w, viewmodel)
+func getAccountIds(accountId string) []string {
+	if accountId == "1" {
+		return []string{"F00000O4Y5",
+			"F00000PLW7",
+			"F00000PLW9",
+			"F00000P781",
+			"F00000P7MI",
+			"F0GBR0506U",
+			"F000002NAB",
+			"F0GBR04RMW",
+			"F0GBR04RMU",
+			"F00000OPX3",
+			"F00000PVLK",
+			"F00000OWM6",
+			"F00000P0QE",
+			"F00000MZDQ",
+			"F00000MWJQ",
+			"F00000J3S6",
+			"F0GBR06I57",
+			"F00000PLVU",
+			"F00000PW2X",
+			"F00000OWFG",
+			"F00000OYEQ",
+			"F00000OPVF",
+			"F00000OPUT",
+			"F00000OXIA"}
+	} else if accountId == "2" {
+		return []string{"F00000O4Y5",
+			"F00000PLW7",
+			"F00000PLW9",
+			"F00000P781",
+			"F00000P7MI",
+			"F0GBR0506U",
+			"F000002NAB",
+			"F0GBR04RMW",
+			"F0GBR04RMU",
+			"F00000OPX3",
+			"F00000PVLK",
+			"F00000OWM6",
+			"F00000P0QE",
+			"F00000MZDQ",
+			"F00000MWJQ",
+			"F00000J3S6",
+			"F0GBR06I57",
+			"F00000PLVU",
+			"F00000PW2X",
+			"F00000OWFG",
+			"F00000OYEQ",
+			"F00000OPVF",
+			"F00000OPUT",
+			"F00000OXIA"}
+	}
+	return nil
 }
