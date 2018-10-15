@@ -122,6 +122,7 @@ func GetNavPrice(id string) (float64, string, string) {
 var c = cache.New(10*time.Minute, 10*time.Minute)
 
 func main() {
+	// getIds()
 	router := mux.NewRouter()
 	router.HandleFunc("/{id}/prices", handlerPrices).Methods("GET")
 	router.HandleFunc("/{id}/dates", handlerDates).Methods("GET")
@@ -214,7 +215,54 @@ func getAccountIds(accountId string) []string {
 			"F00000OYEQ",
 			"F00000OPVF",
 			"F00000OPUT",
-			"F00000OXIA"}
+			"F00000OXIA",
+			"F00000O4Y5",
+			"F00000PLW7",
+			"F00000PLW9",
+			"F00000P781",
+			"F00000P7MI",
+			"F0GBR0506U",
+			"F000002NAB",
+			"F0GBR04RMW",
+			"F0GBR04RMU",
+			"F00000OPX3",
+			"F00000PVLK",
+			"F00000OWM6",
+			"F00000P0QE",
+			"F00000MZDQ",
+			"F00000MWJQ",
+			"F00000J3S6",
+			"F0GBR06I57",
+			"F00000PLVU",
+			"F00000PW2X",
+			"F00000OWFG",
+			"F00000OYEQ",
+			"F00000OPVF",
+			"F00000OPUT",
+			"F00000OXIA",
+			"F0GBR05BIW",
+			"F00000NBK6",
+			"F00000PPN1",
+			"F00000OTTT",
+			"F00000O7XF",
+			"F00000MWKB",
+			"F00000OWFJ",
+			"F00000OPTP",
+			"F0GBR0506N",
+			"F00000OTU8",
+			"F00000LK2Q",
+			"F00000NRHT",
+			"F00000OU8O",
+			"F00000PLVX",
+			"F00000NUVE",
+			"F00000OIGY",
+			"F00000OBRC",
+			"F00000UMET",
+			"F00000OPTZ",
+			"F00000271D",
+			"F00000OSWK",
+			"F00000MJPU",
+			"F0GBR050DM"}
 	} else if accountId == "2" {
 		return []string{"F00000O4Y5",
 			"F00000PLW7",
