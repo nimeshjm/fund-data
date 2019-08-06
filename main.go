@@ -1,17 +1,16 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/patrickmn/go-cache"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
+
 	"github.com/gorilla/mux"
+	"github.com/patrickmn/go-cache"
 )
 
 var pricesTemplate = `{{range $y, $x := .}}{{$x.Price}}
@@ -53,28 +52,6 @@ func GetIdByISIN(isin string) string {
 	}
 
 	return fund[0].Id
-}
-
-func getIds() {
-
-	file, err := os.Open("isin.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-
-	f, err := os.OpenFile("ids.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	defer f.Close()
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		id := GetIdByISIN(line)
-		f.WriteString(fmt.Sprintf("%s,%s\r\n", line, id))
-	}
 }
 
 func GetNavPrice(id string) (float64, string, string) {
@@ -122,7 +99,6 @@ func GetNavPrice(id string) (float64, string, string) {
 var c = cache.New(10*time.Minute, 10*time.Minute)
 
 func main() {
-	//getIds()
 	router := mux.NewRouter()
 	router.HandleFunc("/{id}/prices", handlerPrices).Methods("GET")
 	router.HandleFunc("/{id}/dates", handlerDates).Methods("GET")
@@ -239,7 +215,15 @@ func getAccountIds(accountId string) []string {
 			"F00000271D",
 			"F00000OSWK",
 			"F00000MJPU",
-			"F0GBR050DM"}
+			"F0GBR050DM",
+			"F00000VZBX",
+			"F00000O7XV",
+			"F0GBR04H80",
+			"F00000OTU3",
+			"F000003WHT",
+			"F00000PBNF",
+			"F00000OWFL",
+		}
 	} else if accountId == "2" {
 		return []string{"F00000O4Y5",
 			"F00000PLW7",
