@@ -209,6 +209,7 @@ func getSoldAccountIds(accountId string) []string {
 			"F00000MJPU",
 		}
 	}
+	return nil
 }
 
 func getAccountIds(accountId string) []string {
