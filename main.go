@@ -102,6 +102,8 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/{id}/prices", handlerPrices).Methods("GET")
 	router.HandleFunc("/{id}/dates", handlerDates).Methods("GET")
+	router.HandleFunc("/{id}/pricessold", handlerPricesSold).Methods("GET")
+	router.HandleFunc("/{id}/datessold", handlerDatesSold).Methods("GET")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", router))
 }
 
@@ -127,10 +129,36 @@ func handlerPrices(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, viewmodel)
 }
 
+func handlerPricesSold(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	accountId := params["id"]
+	ids := getSoldAccountIds(accountId)
+	viewmodel := buildViewModel(ids)
+
+	tmpl := template.New("pricesTemplate")
+	tmpl, _ = tmpl.Parse(pricesTemplate)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	tmpl.Execute(w, viewmodel)
+}
+
 func handlerDates(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	accountId := params["id"]
 	ids := getAccountIds(accountId)
+	viewmodel := buildViewModel(ids)
+
+	tmpl := template.New("datesTemplate")
+	tmpl, _ = tmpl.Parse(datesTemplate)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	tmpl.Execute(w, viewmodel)
+}
+
+func handlerDatesSold(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	accountId := params["id"]
+	ids := getSoldAccountIds(accountId)
 	viewmodel := buildViewModel(ids)
 
 	tmpl := template.New("datesTemplate")
@@ -166,35 +194,43 @@ func buildViewModel(ids []string) []results {
 	return viewmodel
 }
 
+func getSoldAccountIds(accountId string) []string {
+	if accountId == "1" {
+		return []string{
+			"F00000PLW9",
+			"F000002NAB",
+			"F0GBR04RMW",
+			"F0GBR04RMU",
+			"F00000MZDQ",
+			"F00000PLVU",
+			"F00000OWFG",
+			"F00000OPUT",
+			"F00000NBK6",
+			"F00000MJPU",
+		}
+	}
+}
+
 func getAccountIds(accountId string) []string {
 	if accountId == "1" {
 		return []string{
 			"F00000O4Y5",
 			"F00000PLW7",
-			"F00000PLW9",
 			"F00000P781",
 			"F00000P7MI",
 			"F0GBR0506U",
-			"F000002NAB",
-			"F0GBR04RMW",
-			"F0GBR04RMU",
 			"F00000OPX3",
 			"F00000PVLK",
 			"F00000OWM6",
 			"F00000P0QE",
-			"F00000MZDQ",
 			"F00000MWJQ",
 			"F00000J3S6",
 			"F0GBR06I57",
-			"F00000PLVU",
 			"F00000PW2X",
-			"F00000OWFG",
 			"F00000OYEQ",
 			"F00000OPVF",
-			"F00000OPUT",
 			"F00000OXIA",
 			"F0GBR05BIW",
-			"F00000NBK6",
 			"F00000PPN1",
 			"F00000OTTT",
 			"F00000O7XF",
@@ -214,7 +250,6 @@ func getAccountIds(accountId string) []string {
 			"F00000OPTZ",
 			"F00000271D",
 			"F00000OSWK",
-			"F00000MJPU",
 			"F0GBR050DM",
 			"F00000VZBX",
 			"F00000O7XV",
