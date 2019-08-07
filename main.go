@@ -120,7 +120,7 @@ func handlerPrices(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	accountId := params["id"]
 	ids := getAccountIds(accountId)
-	viewmodel := buildViewModel(ids)
+	viewmodel := buildViewModel(accountId, ids)
 
 	tmpl := template.New("pricesTemplate")
 	tmpl, _ = tmpl.Parse(pricesTemplate)
@@ -133,7 +133,7 @@ func handlerPricesSold(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	accountId := params["id"]
 	ids := getSoldAccountIds(accountId)
-	viewmodel := buildViewModel(ids)
+	viewmodel := buildViewModel(accountId, ids)
 
 	tmpl := template.New("pricesTemplate")
 	tmpl, _ = tmpl.Parse(pricesTemplate)
@@ -146,7 +146,7 @@ func handlerDates(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	accountId := params["id"]
 	ids := getAccountIds(accountId)
-	viewmodel := buildViewModel(ids)
+	viewmodel := buildViewModel(accountId, ids)
 
 	tmpl := template.New("datesTemplate")
 	tmpl, _ = tmpl.Parse(datesTemplate)
@@ -159,7 +159,7 @@ func handlerDatesSold(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	accountId := params["id"]
 	ids := getSoldAccountIds(accountId)
-	viewmodel := buildViewModel(ids)
+	viewmodel := buildViewModel(accountId, ids)
 
 	tmpl := template.New("datesTemplate")
 	tmpl, _ = tmpl.Parse(datesTemplate)
@@ -168,9 +168,10 @@ func handlerDatesSold(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, viewmodel)
 }
 
-func buildViewModel(ids []string) []results {
+func buildViewModel(accountID string, ids []string) []results {
 	var viewmodel []results
-	item, found := c.Get("viewmodel")
+	cacheKey := accountID + ids[0]
+	item, found := c.Get(cacheKey)
 	if found {
 		return item.([]results)
 	} else {
@@ -187,7 +188,7 @@ func buildViewModel(ids []string) []results {
 			viewmodel = append(viewmodel, results{price, date})
 		}
 
-		c.Set("viewmodel", viewmodel, cache.DefaultExpiration)
+		c.Set(cacheKey, viewmodel, cache.DefaultExpiration)
 	}
 
 	fmt.Println(viewmodel)
