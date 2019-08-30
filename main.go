@@ -271,7 +271,7 @@ func getAccountIds(accountId string) []string {
 			"F00000OXGE",
 			"F00000OPUR",
 			"F0GBR04H80",
-			"F00000MWJV"
+			"F00000MWJV",
 		}
 	} else if accountId == "2" {
 		return []string{"F00000O4Y5",
