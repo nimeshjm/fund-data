@@ -90,6 +90,10 @@ func GetNavPrice(id string) (float64, string, string) {
 			return 0, "", ""
 		}
 
+		if perf[0].LastPrice.Currency.ID == "GBX" {
+			perf[0].LastPrice.Value = perf[0].LastPrice.Value / 100.0
+		}
+
 		c.Set(url, perf[0], cache.DefaultExpiration)
 		return perf[0].LastPrice.Value, perf[0].LastPrice.Currency.ID, perf[0].LastPrice.Date
 
