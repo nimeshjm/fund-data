@@ -108,7 +108,7 @@ func main() {
 	router.HandleFunc("/{id}/dates", handlerDates).Methods("GET")
 	router.HandleFunc("/{id}/pricessold", handlerPricesSold).Methods("GET")
 	router.HandleFunc("/{id}/datessold", handlerDatesSold).Methods("GET")
-	log.Fatal(http.ListenAndServe("0.0.0.0:8000", router))
+	log.Fatal(http.ListenAndServe("0.0.0.0:80", router))
 }
 
 func init() {
