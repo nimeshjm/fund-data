@@ -100,7 +100,7 @@ func GetNavPrice(id string) (float64, string, string) {
 	}
 }
 
-var c = cache.New(10*time.Minute, 10*time.Minute)
+var c = cache.New(60*time.Minute, 60*time.Minute)
 
 func main() {
 	router := mux.NewRouter()
@@ -213,6 +213,8 @@ func getSoldAccountIds(accountId string) []string {
 			"F00000NBK6",
 			"F00000MJPU",
 		}
+	} else if accountId == "3" {
+		return nil
 	}
 	return nil
 }
@@ -302,6 +304,8 @@ func getAccountIds(accountId string) []string {
 			"F00000OPVF",
 			"F00000OPUT",
 			"F00000OXIA"}
+	} else if accountId == "3" {
+		return []string{"F00000OU94", "F00000P77J", "F0GBR06IK3"}
 	}
 	return nil
 }
