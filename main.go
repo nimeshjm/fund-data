@@ -55,8 +55,12 @@ func GetIdByISIN(isin string) string {
 }
 
 func GetNavPrice(id string) (float64, string, string) {
-	url := fmt.Sprintf("http://tools.morningstar.co.uk/api/rest.svc/9vehuxllxs/security_details/%s?viewId=ETFsnapshot&idtype=msid&responseViewFormat=json", id)
+	log.Print(id)
+	if id == "0" {
+		return 0, "", ""
+	}
 
+	url := fmt.Sprintf("http://tools.morningstar.co.uk/api/rest.svc/9vehuxllxs/security_details/%s?viewId=ETFsnapshot&idtype=msid&responseViewFormat=json", id)
 	item, found := c.Get(url)
 	if found {
 		return item.(EtfSnapshot).LastPrice.Value, item.(EtfSnapshot).LastPrice.Currency.ID, item.(EtfSnapshot).LastPrice.Date
@@ -181,10 +185,6 @@ func buildViewModel(accountID string, ids []string) []results {
 	} else {
 		for i := 0; i < len(ids); i++ {
 			price, _, date := GetNavPrice(ids[i])
-
-			if price == 0 {
-				continue
-			}
 
 			fmt.Print(date)
 			fmt.Println(price)
@@ -359,18 +359,18 @@ func getAccountIds(accountId string) []string {
 			"0", 
 			"0", 
 			"0", 
-			"GB00B5LXGG05",
-			"GB00B7VHZX64",
-			"GB00B7KCG406",
-			"GB00B41YBW71",
-			"GB00BVZ6VF19",
-			"GB00B3B4JF96",
-			"GB0031190555",
-			"GB00B8DLY478",
-			"GB00B8K6W529",
-			"GB00B1XG9G04",
-			"GB00B8GPC429",
-			"GB00B8GJF672",		
+			"F00000NUVE",
+			"F00000OIGY",
+			"F00000OBRC",
+			"F00000LK2Q",
+			"F00000VZBX",
+			"F000001ZY2",
+			"F0GBR05BIW",
+			"F00000OWFJ",
+			"F00000OTU8",
+			"F00000O7XV",
+			"F00000OPX8",
+			"F00000OTTT",	
 		}
 	} else if accountId == "2" {
 		return []string{"F00000O4Y5",
