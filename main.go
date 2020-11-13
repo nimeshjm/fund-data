@@ -58,7 +58,7 @@ func GetNavPrice(id string) (float64, string, string) {
 	url := fmt.Sprintf("http://tools.morningstar.co.uk/api/rest.svc/9vehuxllxs/security_details/%s?viewId=ETFsnapshot&idtype=msid&responseViewFormat=json", id)
 
 	if (id == "0") {
-		return 0, "GBP", ""
+		return 0, "GBP", "1970-01-01T00:00:00"
 	}
 
 	item, found := c.Get(url)
