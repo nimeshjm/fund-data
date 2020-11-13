@@ -54,16 +54,16 @@ func GetIdByISIN(isin string) string {
 	return fund[0].Id
 }
 
-func GetNavPrice(id string) (float64, string, string) {
+func GetNavPrice(id string) (string, string, string) {
 	log.Print(id)
 	if id == "0" {
-		return 0, "", ""
+		return "", "", ""
 	}
 
 	url := fmt.Sprintf("http://tools.morningstar.co.uk/api/rest.svc/9vehuxllxs/security_details/%s?viewId=ETFsnapshot&idtype=msid&responseViewFormat=json", id)
 	item, found := c.Get(url)
 	if found {
-		return item.(EtfSnapshot).LastPrice.Value, item.(EtfSnapshot).LastPrice.Currency.ID, item.(EtfSnapshot).LastPrice.Date
+		return fmt.Sprintf("%f", item.(EtfSnapshot).LastPrice.Value), item.(EtfSnapshot).LastPrice.Currency.ID, item.(EtfSnapshot).LastPrice.Date
 	} else {
 
 		httpClient := http.Client{
@@ -78,20 +78,20 @@ func GetNavPrice(id string) (float64, string, string) {
 		res, getErr := httpClient.Do(req)
 		if getErr != nil {
 			log.Fatal(getErr)
-			return 0, "", ""
+			return "", "", ""
 		}
 
 		body, readErr := ioutil.ReadAll(res.Body)
 		if readErr != nil {
 			log.Fatal(readErr)
-			return 0, "", ""
+			return "", "", ""
 		}
 
 		perf := make([]EtfSnapshot, 0)
 		jsonErr := json.Unmarshal(body, &perf)
 		if jsonErr != nil {
 			log.Fatal(jsonErr)
-			return 0, "", ""
+			return "", "", ""
 		}
 
 		if perf[0].LastPrice.Currency.ID == "GBX" {
@@ -99,7 +99,7 @@ func GetNavPrice(id string) (float64, string, string) {
 		}
 
 		c.Set(url, perf[0], cache.DefaultExpiration)
-		return perf[0].LastPrice.Value, perf[0].LastPrice.Currency.ID, perf[0].LastPrice.Date
+		return fmt.Sprintf("%f", perf[0].LastPrice.Value), perf[0].LastPrice.Currency.ID, perf[0].LastPrice.Date
 
 	}
 }
@@ -120,7 +120,7 @@ func init() {
 }
 
 type results struct {
-	Price float64
+	Price string
 	Date  string
 }
 
@@ -332,7 +332,6 @@ func getAccountIds(accountId string) []string {
 			"F00000P8DN",
 			"F00000OXGE",
 			"F00000OPUR",
-			"0", //"F0GBR04H80",
 			"F00000MWJV",
 			"0", 
 			"0", 
